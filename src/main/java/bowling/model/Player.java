@@ -1,105 +1,53 @@
 package bowling.model;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Objects;
 
 public class Player {
+
     private String name;
-    private List<Point> points = new LinkedList<>();
+    private List<Turn> turns = new LinkedList<>();
+    private List<Integer> scores = new ArrayList<>();
+    private Integer totalScore;
 
     public Player(String name) {
         this.name = name;
     }
 
-    public Player(String name, Point point) {
-        this.name = name;
-        addPoint(point);
-    }
-
-    public void addPoint(Point point) {
-        points.add(point);
+    public void registerTurn(Turn turn) {
+        turns.add(turn);
     }
 
     public String getName() {
         return name;
     }
 
-    public List<Point> getPoints() {
-        return points;
+    public List<Turn> getTurns() {
+        return turns;
     }
 
-    public void printScores() {
-        ListIterator<Point> iterator = points.listIterator();
-        Integer total = 0;
-        Integer frame = 1;
-
-        while (iterator.hasNext()) {
-            total += getScore(iterator, iterator.next(), 0, frame == 10);
-            System.out.printf("%d\t\t", total);
-            frame++;
-        }
+    private Turn getLastTurn() {
+        return turns.get(turns.size() - 1);
     }
 
-    public Integer getScore(ListIterator<Point> iterator, Point currentPoint, Integer strikesCounter, boolean lastFrame) {
-        Integer total = 0;
-
-        if (currentPoint.isRegularPoint()) {
-            total += strikesCounter == 2 ? currentPoint.getFirstShootScore() : currentPoint.getScore();
-        }
-
-        if (currentPoint.isSpare()) {
-            // handle iterator next case available
-            if (strikesCounter == 2) {
-                total += currentPoint.getFirstShootScore();
-            } else {
-                total += currentPoint.getScore();
-
-                if (iterator.hasNext()) {
-                    total += iterator.next().getFirstShootScore();
-                    iterator.previous();
-                }
-            }
-        }
-
-        if (currentPoint.isStrike()) {
-            // handle iterator next case available
-            total += 10;
-
-            if (strikesCounter < 2) {
-                strikesCounter++;
-
-                if (iterator.hasNext()) {
-                    Point nextPoint = iterator.next();
-                    total += getScore(iterator, nextPoint, strikesCounter, lastFrame);
-
-                    if (!lastFrame) {
-                        iterator.previous();
-                    }
-                }
-            }
-        }
-
-        if (lastFrame) {
-            while (iterator.hasNext()) {
-                total += getScore(iterator, iterator.next(), 0, true);
-            }
-        }
-
-        return total;
+    public boolean isLastTurnInProgress() {
+        return getLastTurn().isInProgress();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Player player = (Player) o;
-        return name.equals(player.name);
+    public void registerSecondShoot(Shoot shoot) {
+        getLastTurn().registerSecondShoot(shoot);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
+    public void setScores(List<Integer> scores) {
+        this.scores = scores;
+    }
+
+    public List<Integer> getScores() {
+        return scores;
+    }
+
+    public void setTotalScore(int totalScore) {
+        this.totalScore = totalScore;
     }
 }

@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface DataLoader {
 
-    List<Player> load();
+    List<Player> loadPlayers();
 }
