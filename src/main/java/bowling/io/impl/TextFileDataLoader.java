@@ -2,29 +2,37 @@ package bowling.io.impl;
 
 import bowling.helper.PlayerFactory;
 import bowling.io.DataLoader;
+import bowling.io.InputWrapper;
+import bowling.io.OutputWrapper;
 import bowling.io.pojo.PlayerShoot;
 import bowling.model.Player;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
+import static bowling.utils.FileUtils.WHITESPACE_SEPARATOR;
 import static java.util.stream.Collectors.toList;
 
 public class TextFileDataLoader implements DataLoader {
 
     private static final Logger logger = LoggerFactory.getLogger(TextFileDataLoader.class.getName());
-    private static final String WHITESPACE_SEPARATOR = " ";
 
+    private final OutputWrapper outputWrapper;
+    private final InputWrapper inputWrapper;
     private final PlayerFactory playerFactory;
 
-    public TextFileDataLoader(PlayerFactory playerFactory) {
+    public TextFileDataLoader(InputWrapper inputWrapper, OutputWrapper outputWrapper, PlayerFactory playerFactory) {
+        this.inputWrapper = inputWrapper;
+        this.outputWrapper = outputWrapper;
         this.playerFactory = playerFactory;
     }
 
@@ -47,19 +55,21 @@ public class TextFileDataLoader implements DataLoader {
     }
 
     private List<String> readFile() {
-        Scanner scanner = new Scanner(System.in);
         List<String> lines = new ArrayList<>();
         boolean fileNotFound = true;
 
         while (fileNotFound) {
-            String fileName = requestFileName(scanner);
+            String fileName = requestFileName();
+            URL resource = getClass().getResource(fileName);
+            File file = FileUtils.toFile(resource);
 
-            try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 lines = reader.lines().collect(toList());
                 fileNotFound = false;
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException | NullPointerException e) {
                 logger.error("File {} was not found, please try again.", fileName);
             } catch (IOException e) {
+                logger.error(e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -67,9 +77,9 @@ public class TextFileDataLoader implements DataLoader {
         return lines;
     }
 
-    private String requestFileName(Scanner scanner) {
-        System.out.println("\nEnter file to scan: ");
-        return scanner.nextLine();
+    private String requestFileName() {
+        outputWrapper.displayNewLine("\nEnter file to scan: ");
+        return inputWrapper.readLine();
     }
 
     private String[] extractNameAndScore(String line) {

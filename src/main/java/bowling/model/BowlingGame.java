@@ -20,4 +20,8 @@ public class BowlingGame {
     public void displayScores() {
         scoreDisplay.display(players);
     }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
 }

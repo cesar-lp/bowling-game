@@ -53,7 +53,6 @@ public class Player {
 
     public boolean hasCompletedExtraTurn() {
         Turn tenthTurn = getTenthTurn();
-        Turn extraTurn = getLastTurn();
         return (tenthTurn.isStrike() || tenthTurn.isSpare()) && !isLastTurnInProgress();
     }
 
@@ -73,7 +72,7 @@ public class Player {
         this.totalScore = totalScore;
     }
 
-    public Integer getTotalScore() {
+    public int getTotalScore() {
         return totalScore;
     }
 }

@@ -9,11 +9,12 @@ import java.util.ListIterator;
 
 public class ScoreCalculator {
 
-    private ScoreCalculator() {}
+    private ScoreCalculator() {
+    }
 
     public static void calculatePlayerScores(Player player) {
         player.setScores(getScores(player.getTurns()));
-        player.setTotalScore(getTotalScore(player.getScores()));
+        player.setTotalScore(player.getScores().get(player.getScores().size() - 1));
     }
 
     private static List<Integer> getScores(List<Turn> turns) {
@@ -35,19 +36,19 @@ public class ScoreCalculator {
         int total = 0;
 
         if (currentTurn.isRegular()) {
-            total += strikesCounter < 2 ? currentTurn.getScore() : currentTurn.getAmountKnockedOverOnFirstShoot();
+            total += strikesCounter < 2 ? currentTurn.getScore() : currentTurn.getFirstShootScore();
         }
 
         if (currentTurn.isSpare()) {
             if (strikesCounter == 1) {
                 total += currentTurn.getScore();
             } else if (strikesCounter == 2) {
-                total += currentTurn.getAmountKnockedOverOnFirstShoot();
+                total += currentTurn.getFirstShootScore();
             } else {
                 total += currentTurn.getScore();
 
                 if (iterator.hasNext()) {
-                    total += iterator.next().getAmountKnockedOverOnFirstShoot();
+                    total += iterator.next().getFirstShootScore();
                     iterator.previous();
                 }
             }
@@ -59,30 +60,20 @@ public class ScoreCalculator {
             if (strikesCounter < 2) {
                 strikesCounter++;
 
+                if (lastFrame && iterator.hasNext()) {
+                    Turn nextTurn = iterator.next();
+                    total += currentTurn.isSpare() ? nextTurn.getFirstShootScore() : nextTurn.getScore();
+                    return total;
+                }
+
                 if (iterator.hasNext()) {
                     Turn nextTurn = iterator.next();
-
-                    total += getScore(iterator, nextTurn, strikesCounter, lastFrame);
-
-                    if (!lastFrame) {
-                        iterator.previous();
-                    }
+                    total += getScore(iterator, nextTurn, strikesCounter, false);
+                    iterator.previous();
                 }
             }
         }
 
-        if (lastFrame) {
-            while (iterator.hasNext()) {
-                total += getScore(iterator, iterator.next(), 0, true);
-            }
-        }
-
         return total;
-    }
-
-    private static int getTotalScore(List<Integer> scores) {
-        return scores.stream()
-                .mapToInt(Integer::intValue)
-                .sum();
     }
 }

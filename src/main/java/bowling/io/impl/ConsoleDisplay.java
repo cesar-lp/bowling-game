@@ -1,5 +1,6 @@
 package bowling.io.impl;
 
+import bowling.io.OutputWrapper;
 import bowling.io.ScoreDisplay;
 import bowling.model.Player;
 import bowling.model.Turn;
@@ -8,6 +9,12 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class ConsoleDisplay implements ScoreDisplay {
+
+    private final OutputWrapper outputWrapper;
+
+    public ConsoleDisplay(OutputWrapper outputWrapper) {
+        this.outputWrapper = outputWrapper;
+    }
 
     @Override
     public void display(List<Player> players) {
@@ -20,19 +27,17 @@ public class ConsoleDisplay implements ScoreDisplay {
     }
 
     private void displayFrames() {
-        System.out.printf("\n%-20s", "Frame");
-        IntStream.range(1, 11).forEachOrdered(i -> System.out.printf("%d\t\t", i));
-        System.out.println();
+        outputWrapper.displayFormatted("\n%-20s", "Frame");
+        IntStream.range(1, 11).forEachOrdered(i -> outputWrapper.displayFormatted("%d\t\t", i));
+        outputWrapper.displayNewLine();
     }
 
     private void displayPlayerName(Player player) {
-        System.out.printf("%-20s\n", player.getName());
+        outputWrapper.displayFormatted("%-20s\n", player.getName());
     }
 
     private void displayPlayerPinfalls(Player player) {
-        System.out.printf("%-20s", "Pinfalls");
-
-        Integer frame = 1;
+        outputWrapper.displayFormatted("%-20s", "Pinfalls");
 
         for (int i = 0; i < 10; i++) {
             Turn turn = player.getTurns().get(i);
@@ -40,36 +45,36 @@ public class ConsoleDisplay implements ScoreDisplay {
 
             if (i == 9) {
                 List<Turn> tenRoundTurns = player.getTurns().subList(9, player.getTurns().size());
-                displayTenRoundPointPinfalls(tenRoundTurns);
+                displayTenthTurnPinfalls(tenRoundTurns);
                 continue;
             }
 
             if (turn.isStrike()) {
-                System.out.printf("\t%s\t", turn.getScoreType());
+                outputWrapper.displayFormatted("\t%s\t", turn.getScoreType());
                 continue;
             }
 
-            System.out.printf("%s\t%s\t", turn.getFirstShootDesc(), turn.getSecondChanceDesc());
+            outputWrapper.displayFormatted("%s\t%s\t", turn.getFirstShootDesc(), turn.getSecondChanceDesc());
         }
 
-        System.out.println();
+        outputWrapper.displayNewLine();
     }
 
-    private void displayTenRoundPointPinfalls(List<Turn> tenRoundTurns) {
-        for (Turn p : tenRoundTurns) {
-            if (p.isStrike()) {
-                System.out.printf("%s\t", p.getScoreType());
+    private void displayTenthTurnPinfalls(List<Turn> tenthTurnPinfalls) {
+        for (Turn turn : tenthTurnPinfalls) {
+            if (turn.isStrike()) {
+                outputWrapper.displayFormatted("%s\t", turn.getScoreType());
             } else {
-                System.out.printf("%s\t%s\t", p.getFirstShootDesc(), p.getSecondChanceDesc());
+                outputWrapper.displayFormatted("%s\t%s\t", turn.getFirstShootDesc(), turn.getSecondChanceDesc());
             }
         }
     }
 
     private void displayPlayerScores(Player player) {
-        System.out.printf("%-20s", "Score");
+        outputWrapper.displayFormatted("%-20s", "Score");
         player.getScores()
                 .stream()
-                .forEachOrdered(score -> System.out.printf("%d\t\t", score));
-        System.out.println();
+                .forEachOrdered(score -> outputWrapper.displayFormatted("%d\t\t", score));
+        outputWrapper.displayNewLine();
     }
 }

@@ -15,6 +15,7 @@ public class Turn {
     public static Turn incompleteExtraTurn(Shoot firstShoot) {
         Turn incompleteExtraTurn = new Turn(firstShoot);
         incompleteExtraTurn.secondShoot = null;
+        incompleteExtraTurn.scoreType = ScoreType.REGULAR;
         return incompleteExtraTurn;
     }
 
@@ -38,13 +39,15 @@ public class Turn {
         }
     }
 
-    public int getAmountKnockedOverOnFirstShoot() {
+    public int getFirstShootScore() {
         return firstShoot.getKnockedOver();
     }
 
     public String getFirstShootDesc() {
         if (isStrike()) {
             return scoreType.toString();
+        } else if (firstShoot.getKnockedOver() == 10) {
+            return ScoreType.STRIKE.toString();
         }
         return firstShoot.toString();
     }
@@ -52,6 +55,8 @@ public class Turn {
     public String getSecondChanceDesc() {
         if (isSpare()) {
             return scoreType.toString();
+        } else if (secondShoot.getKnockedOver() == 10) {
+            return ScoreType.STRIKE.toString();
         }
         return secondShoot.toString();
     }
@@ -67,12 +72,8 @@ public class Turn {
     public void registerSecondShoot(Shoot secondShoot) {
         this.secondShoot = secondShoot;
 
-        if (getTurnScore() == 10) {
-            if (firstShoot != null && firstShoot.getKnockedOver() == 10) {
-                this.scoreType = ScoreType.STRIKE;
-            } else {
-                this.scoreType = ScoreType.SPARE;
-            }
+        if (getFirstShootScore() != 10 && getTurnScore() == 10) {
+            this.scoreType = ScoreType.SPARE;
         }
     }
 
@@ -107,13 +108,5 @@ public class Turn {
 
     public boolean isRegular() {
         return scoreType.equals(ScoreType.REGULAR);
-    }
-
-    public void resetSecondShoot() {
-        secondShoot = new Shoot(0);
-    }
-
-    public Shoot getFirstShoot() {
-        return firstShoot;
     }
 }
