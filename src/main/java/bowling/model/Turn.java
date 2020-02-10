@@ -1,22 +1,28 @@
 package bowling.model;
 
-import bowling.constants.PointType;
+import bowling.constants.ScoreType;
 
 public class Turn {
 
     Shoot firstShoot;
     Shoot secondShoot;
-    PointType pointType = PointType.REGULAR;
+    ScoreType scoreType = ScoreType.REGULAR;
 
     public static Turn strike() {
         return new Turn(new Shoot(10), new Shoot(0));
+    }
+
+    public static Turn incompleteExtraTurn(Shoot firstShoot) {
+        Turn incompleteExtraTurn = new Turn(firstShoot);
+        incompleteExtraTurn.secondShoot = null;
+        return incompleteExtraTurn;
     }
 
     public Turn(Shoot firstShoot) {
         this.firstShoot = firstShoot;
 
         if (this.firstShoot.getKnockedOver() == 10) {
-            this.pointType = PointType.STRIKE;
+            this.scoreType = ScoreType.STRIKE;
             this.secondShoot = new Shoot(0);
         }
     }
@@ -26,9 +32,9 @@ public class Turn {
         this.secondShoot = secondShoot;
 
         if (this.firstShoot.getKnockedOver() == 10) {
-            pointType = PointType.STRIKE;
-        } else if (getTurnTotal() == 10) {
-            pointType = PointType.SPARE;
+            scoreType = ScoreType.STRIKE;
+        } else if (getTurnScore() == 10) {
+            scoreType = ScoreType.SPARE;
         }
     }
 
@@ -38,20 +44,20 @@ public class Turn {
 
     public String getFirstShootDesc() {
         if (isStrike()) {
-            return pointType.toString();
+            return scoreType.toString();
         }
         return firstShoot.toString();
     }
 
     public String getSecondChanceDesc() {
         if (isSpare()) {
-            return pointType.toString();
+            return scoreType.toString();
         }
         return secondShoot.toString();
     }
 
-    public PointType getPointType() {
-        return pointType;
+    public ScoreType getScoreType() {
+        return scoreType;
     }
 
     public boolean isInProgress() {
@@ -61,39 +67,53 @@ public class Turn {
     public void registerSecondShoot(Shoot secondShoot) {
         this.secondShoot = secondShoot;
 
-        if (getTurnTotal() == 10) {
-            this.pointType = PointType.SPARE;
+        if (getTurnScore() == 10) {
+            if (firstShoot != null && firstShoot.getKnockedOver() == 10) {
+                this.scoreType = ScoreType.STRIKE;
+            } else {
+                this.scoreType = ScoreType.SPARE;
+            }
         }
     }
 
     public Integer getScore() {
-        switch (pointType) {
+        switch (scoreType) {
             case STRIKE:
             case SPARE:
                 return 10;
             default:
-                return getTurnTotal();
+                return getTurnScore();
         }
     }
 
-    private int getTurnTotal() {
+    private int getTurnScore() {
         return firstShoot.getKnockedOver() + secondShoot.getKnockedOver();
     }
 
     @Override
     public String toString() {
-        return "[" + firstShoot.getKnockedOver() + "," + secondShoot.getKnockedOver() + "]";
+        String fShoot = firstShoot != null ? String.valueOf(firstShoot.getKnockedOver()) : " ";
+        String sShoot = secondShoot != null ? String.valueOf(secondShoot.getKnockedOver()) : " ";
+        return "[" + fShoot + "," + sShoot + "]";
     }
 
     public boolean isStrike() {
-        return pointType.equals(PointType.STRIKE);
+        return scoreType.equals(ScoreType.STRIKE);
     }
 
     public boolean isSpare() {
-        return pointType.equals(PointType.SPARE);
+        return scoreType.equals(ScoreType.SPARE);
     }
 
     public boolean isRegular() {
-        return pointType.equals(PointType.REGULAR);
+        return scoreType.equals(ScoreType.REGULAR);
+    }
+
+    public void resetSecondShoot() {
+        secondShoot = new Shoot(0);
+    }
+
+    public Shoot getFirstShoot() {
+        return firstShoot;
     }
 }

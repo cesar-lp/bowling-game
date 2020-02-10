@@ -22,7 +22,7 @@ public class ScoreCalculator {
         int total = 0;
         int frame = 1;
 
-        while (iterator.hasNext()) {
+        while (frame <= 10) {
             total += getScore(iterator, iterator.next(), 0, frame == 10);
             scores.add(total);
             frame++;

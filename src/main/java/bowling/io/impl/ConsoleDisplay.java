@@ -45,7 +45,7 @@ public class ConsoleDisplay implements ScoreDisplay {
             }
 
             if (turn.isStrike()) {
-                System.out.printf("\t%s\t", turn.getPointType());
+                System.out.printf("\t%s\t", turn.getScoreType());
                 continue;
             }
 
@@ -58,7 +58,7 @@ public class ConsoleDisplay implements ScoreDisplay {
     private void displayTenRoundPointPinfalls(List<Turn> tenRoundTurns) {
         for (Turn p : tenRoundTurns) {
             if (p.isStrike()) {
-                System.out.printf("%s\t", p.getPointType());
+                System.out.printf("%s\t", p.getScoreType());
             } else {
                 System.out.printf("%s\t%s\t", p.getFirstShootDesc(), p.getSecondChanceDesc());
             }

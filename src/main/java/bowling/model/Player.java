@@ -27,12 +27,34 @@ public class Player {
         return turns;
     }
 
-    private Turn getLastTurn() {
+    public boolean didNotStrikeOnTenthTurn() {
+        return !getTenthTurn().isStrike();
+    }
+
+    public Turn getTenthTurn() {
+        return turns.get(9);
+    }
+
+    public Turn getLastTurn() {
         return turns.get(turns.size() - 1);
     }
 
     public boolean isLastTurnInProgress() {
         return getLastTurn().isInProgress();
+    }
+
+    public boolean isPlayingTenthTurn() {
+        return turns.size() == 10;
+    }
+
+    public boolean isPlayingExtraTurn() {
+        return turns.size() == 11;
+    }
+
+    public boolean hasCompletedExtraTurn() {
+        Turn tenthTurn = getTenthTurn();
+        Turn extraTurn = getLastTurn();
+        return (tenthTurn.isStrike() || tenthTurn.isSpare()) && !isLastTurnInProgress();
     }
 
     public void registerSecondShoot(Shoot shoot) {
@@ -49,5 +71,9 @@ public class Player {
 
     public void setTotalScore(int totalScore) {
         this.totalScore = totalScore;
+    }
+
+    public Integer getTotalScore() {
+        return totalScore;
     }
 }
