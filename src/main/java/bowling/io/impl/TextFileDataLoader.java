@@ -1,5 +1,6 @@
 package bowling.io.impl;
 
+import bowling.exception.InvalidFileException;
 import bowling.helper.PlayerFactory;
 import bowling.io.DataLoader;
 import bowling.io.InputWrapper;
@@ -41,6 +42,10 @@ public class TextFileDataLoader implements DataLoader {
         List<String> fileLines = readFile();
         List<Player> players = new ArrayList<>();
 
+        if (fileLines.size() < 10) {
+            throw new InvalidFileException("File must have at least 10 lines, found " + fileLines.size());
+        }
+
         try {
             fileLines.stream()
                     .map(this::extractNameAndScore)
@@ -59,15 +64,14 @@ public class TextFileDataLoader implements DataLoader {
         boolean fileNotFound = true;
 
         while (fileNotFound) {
-            String fileName = requestFileName();
-            URL resource = getClass().getResource(fileName);
-            File file = FileUtils.toFile(resource);
+            File file = inputWrapper.getFile();
 
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 lines = reader.lines().collect(toList());
                 fileNotFound = false;
             } catch (FileNotFoundException | NullPointerException e) {
-                logger.error("File {} was not found, please try again.", fileName);
+                logger.error("File {} was not found, please try again.", inputWrapper.getFileName());
+                System.exit(1);
             } catch (IOException e) {
                 logger.error(e.getMessage());
                 e.printStackTrace();
@@ -75,11 +79,6 @@ public class TextFileDataLoader implements DataLoader {
         }
 
         return lines;
-    }
-
-    private String requestFileName() {
-        outputWrapper.displayNewLine("\nEnter file to scan: ");
-        return inputWrapper.readLine();
     }
 
     private String[] extractNameAndScore(String line) {
