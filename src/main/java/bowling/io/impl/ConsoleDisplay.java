@@ -27,21 +27,20 @@ public class ConsoleDisplay implements ScoreDisplay {
     }
 
     private void displayFrames() {
-        outputWrapper.displayFormatted("\n%-20s", "Frame");
+        outputWrapper.displayFormatted("\n%-17s\t", "Frame");
         IntStream.range(1, 11).forEachOrdered(i -> outputWrapper.displayFormatted("%d\t\t", i));
         outputWrapper.displayNewLine();
     }
 
     private void displayPlayerName(Player player) {
-        outputWrapper.displayFormatted("%-20s\n", player.getName());
+        outputWrapper.displayFormatted("%s\n", player.getName());
     }
 
     private void displayPlayerPinfalls(Player player) {
-        outputWrapper.displayFormatted("%-20s", "Pinfalls");
+        outputWrapper.displayFormatted("%-17s\t", "Pinfalls");
 
         for (int i = 0; i < 10; i++) {
             Turn turn = player.getTurns().get(i);
-            StringBuilder text = new StringBuilder();
 
             if (i == 9) {
                 List<Turn> tenRoundTurns = player.getTurns().subList(9, player.getTurns().size());
@@ -71,10 +70,13 @@ public class ConsoleDisplay implements ScoreDisplay {
     }
 
     private void displayPlayerScores(Player player) {
-        outputWrapper.displayFormatted("%-20s", "Score");
-        player.getScores()
-                .stream()
-                .forEachOrdered(score -> outputWrapper.displayFormatted("%d\t\t", score));
-        outputWrapper.displayNewLine();
+        outputWrapper.displayFormatted("%-17s\t", "Score");
+        int scoreAmount = player.getScores().size();
+
+        IntStream.range(0, scoreAmount - 1)
+                .map(i -> player.getScores().get(i))
+                .forEach(score -> outputWrapper.displayFormatted("%d\t\t", score));
+
+        outputWrapper.displayFormatted("%d\n", player.getScores().get(scoreAmount - 1));
     }
 }

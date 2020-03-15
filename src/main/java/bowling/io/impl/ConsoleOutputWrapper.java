@@ -6,7 +6,7 @@ public class ConsoleOutputWrapper implements OutputWrapper {
 
     @Override
     public void displayNewLine() {
-        System.out.println();
+        displayNewLine("");
     }
 
     @Override
