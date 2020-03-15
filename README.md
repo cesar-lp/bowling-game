@@ -72,12 +72,12 @@ cd bowling-game-command-line-reader
 
 3. Run the following command to build the project
 ```shell script 
-./gradle build 
+./gradlew build 
 ```
 
 If you want to run the tests and build the project afterwards
 ```shell script 
-./gradle test
+./gradlew test
 ```
 
 4. Run the project
